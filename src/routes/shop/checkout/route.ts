@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "../../../compat/next-server";
 import type Stripe from "stripe";
-import { getWebAppBaseUrl } from "../../../config/app-env";
+import { getWebAppUrl } from "../../../config/runtime";
 import { getStripeClient } from "../../../helper/stripe";
 import { getSupabaseAdminClient } from "../../../helper/supabaseAdmin";
 import { createSupabaseServerClient } from "../../../helper/supabaseServer";
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: orderError?.message || "Failed to create order." }, { status: 500 });
   }
 
-  const baseUrl = getWebAppBaseUrl(new URL(req.url).origin);
+  const baseUrl = getWebAppUrl();
   const successUrl = `${baseUrl}/checkout-success?session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${baseUrl}/shop?canceled=1`;
   const allowedCountries = (process.env.STRIPE_ALLOWED_SHIPPING_COUNTRIES || "")

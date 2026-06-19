@@ -4,6 +4,7 @@ import type { Request, Response, NextFunction } from 'express';
 import express from 'express';
 import { AppModule } from '../src/app.module';
 import { ApiRouterService } from '../src/api-router.service';
+import { getAllowedOrigins } from '../src/config/runtime';
 
 const server = express();
 let bootstrapped = false;
@@ -17,8 +18,10 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: process.env.FRONTEND_ORIGIN?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? true,
+    origin: getAllowedOrigins(),
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
   });
 
   const apiRouter = app.get(ApiRouterService);

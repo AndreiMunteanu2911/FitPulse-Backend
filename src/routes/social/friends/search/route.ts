@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   if (!q || q.length < 2) return NextResponse.json({ users: [] });
 
   const { data, error } = await supabase
-    .from("user_stats")
+    .from("public_user_profiles")
     .select("user_id, display_name")
     .ilike("display_name", `%${q}%`)
     .neq("user_id", user.id)

@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   if (commentUserIds.length > 0) {
     const { data: commentUserStats } = await supabase
-      .from("user_stats")
+      .from("public_user_profiles")
       .select("user_id, display_name")
       .in("user_id", commentUserIds);
 

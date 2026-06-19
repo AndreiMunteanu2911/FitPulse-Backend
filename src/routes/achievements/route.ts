@@ -1,5 +1,6 @@
 import { NextResponse } from "../../compat/next-server";
 import { createSupabaseServerClient } from "../../helper/supabaseServer";
+import { getSupabaseAdminClient } from "../../helper/supabaseAdmin";
 import {
   ACHIEVEMENT_DEFINITIONS,
   checkUnlockCondition,
@@ -68,7 +69,8 @@ export async function GET() {
  * Claims an achievement:
  *  1. Validates the achievement ID and verifies conditions are met
  *  2. Inserts a row into user_achievements (unique constraint prevents double-claim)
- *  3. Reads current user_stats.total_xp then upserts with total_xp += xp_reward
+ *  3. Calls a service-role-only database function that reads the configured reward
+ *     and atomically updates the claim and XP total
  *  4. Returns the full updated XP stats so the page can update in-place
  */
 export async function POST(request: Request) {
@@ -102,9 +104,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Achievement conditions not yet met" }, { status: 403 });
   }
 
-  const { data: claimRows, error: claimError } = await supabase.rpc("claim_achievement", {
+  const supabaseAdmin = getSupabaseAdminClient();
+  const { data: claimRows, error: claimError } = await supabaseAdmin.rpc("claim_achievement_for_user", {
+    p_user_id: user.id,
     p_achievement_id: achievementId,
-    p_xp_reward: definition.xpReward,
   });
 
   if (claimError) {
@@ -119,12 +122,13 @@ export async function POST(request: Request) {
   const unlockedAt = claim.claimed_at as string;
   const newTotalXP = Number(claim.total_xp);
   const newLevel = Number(claim.level);
+  const xpEarned = Number(claim.xp_earned);
 
   return NextResponse.json({
     success: true,
     achievementId,
     claimedAt: unlockedAt,
-    xpEarned: definition.xpReward,
+    xpEarned,
     totalXP: newTotalXP,
     level: newLevel,
     xpForCurrentLevel: xpForLevel(newLevel),

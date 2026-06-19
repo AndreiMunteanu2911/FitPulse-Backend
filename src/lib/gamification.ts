@@ -1,5 +1,3 @@
-import type { ExerciseType } from "../types";
-
 // ── XP / Level maths ─────────────────────────────────────────────────────────
 // Thresholds: xpForLevel(n) = (n-1)² × 50
 //   L1:     0 XP   → L2 at    50 XP
@@ -75,29 +73,3 @@ export function checkUnlockCondition(id: string, summary: WorkoutSummary): boole
   }
 }
 
-// ── Rest timer helpers ────────────────────────────────────────────────────────
-const COMPOUND_MUSCLES = new Set([
-  "back", "chest", "upper legs", "lower legs", "waist",
-  "quads", "hamstrings", "glutes", "spine",
-]);
-
-const COMPOUND_BODY_PARTS = new Set([
-  "back", "chest", "upper legs", "lower legs",
-]);
-
-export function detectExerciseType(exercise: {
-  target_muscles?: string[] | null;
-  body_parts?: string[] | null;
-}): ExerciseType {
-  const muscles = (exercise.target_muscles ?? []).map((m) => m.toLowerCase());
-  const parts   = (exercise.body_parts   ?? []).map((p) => p.toLowerCase());
-  const isCompound =
-    muscles.some((m) => COMPOUND_MUSCLES.has(m)) ||
-    parts.some((p)   => COMPOUND_BODY_PARTS.has(p));
-  return isCompound ? "compound" : "isolation";
-}
-
-export const REST_DURATIONS: Record<ExerciseType, number> = {
-  compound:  180,  // 3 minutes
-  isolation:  90,  // 90 seconds
-};

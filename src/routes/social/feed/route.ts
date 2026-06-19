@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   const userStatsMap = new Map<string, { display_name: string | null }>();
   if (userIds.length > 0) {
     const { data: userStats } = await supabase
-      .from("user_stats")
+      .from("public_user_profiles")
       .select("user_id, display_name")
       .in("user_id", userIds);
     userStats?.forEach((stat) => userStatsMap.set(stat.user_id, stat));
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
   ] as string[];
   if (commentUserIds.length > 0) {
     const { data: commentUserStats } = await supabase
-      .from("user_stats")
+      .from("public_user_profiles")
       .select("user_id, display_name")
       .in("user_id", commentUserIds);
     commentUserStats?.forEach((stat) => userStatsMap.set(stat.user_id, stat));

@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "../../../../../compat/next-server";
 import { requireAdmin } from "../../../../../helper/supabaseServer";
+import { getSupabaseAdminClient } from "../../../../../helper/supabaseAdmin";
 
 export async function PUT(
   req: NextRequest,
@@ -11,7 +12,7 @@ export async function PUT(
 ) {
   const guard = await requireAdmin();
   if ("error" in guard) return guard.error;
-  const { supabase, user: adminUser } = guard;
+  const { user: adminUser } = guard;
 
   const { id } = await params;
   const { role } = await req.json();
@@ -25,7 +26,8 @@ export async function PUT(
     return NextResponse.json({ error: "You cannot demote yourself" }, { status: 400 });
   }
 
-  const { error } = await supabase
+  const supabaseAdmin = getSupabaseAdminClient();
+  const { error } = await supabaseAdmin
     .from("user_stats")
     .update({ role })
     .eq("user_id", id);

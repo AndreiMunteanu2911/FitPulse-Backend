@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, PayloadTooLargeException } from '@nestjs/common';
 import type { Request, Response as ExpressResponse } from 'express';
 import { runWithRequestContext } from './compat/request-context';
 import { NextRequest } from './compat/next-server';
 import { routeManifest, type RouteManifestEntry } from './route-manifest';
 
 type RouteModule = Record<string, unknown>;
+const MAX_REQUEST_BODY_BYTES = 15 * 1024 * 1024;
 
 @Injectable()
 export class ApiRouterService {
@@ -96,7 +97,17 @@ export class ApiRouterService {
   private readBody(req: Request): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
-      req.on('data', (chunk: Buffer) => chunks.push(chunk));
+      let totalBytes = 0;
+
+      req.on('data', (chunk: Buffer) => {
+        totalBytes += chunk.length;
+        if (totalBytes > MAX_REQUEST_BODY_BYTES) {
+          reject(new PayloadTooLargeException('Request body exceeds the 15 MB limit.'));
+          req.pause();
+          return;
+        }
+        chunks.push(chunk);
+      });
       req.on('end', () => resolve(Buffer.concat(chunks)));
       req.on('error', reject);
     });

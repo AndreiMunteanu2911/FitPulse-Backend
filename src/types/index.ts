@@ -423,20 +423,6 @@ export interface UserSearchResult {
   friendship_status?: "none" | "pending_sent" | "pending_received" | "accepted";
 }
 
-// ── Rest Timer ─────────────────────────────────────────────────────────────────
-
-export type ExerciseType = "compound" | "isolation";
-
-export interface RestTimerState {
-  active: boolean;
-  duration: number;        // total seconds
-  remaining: number;       // seconds left
-  exerciseName: string;
-  exerciseType: ExerciseType;
-  workoutExerciseId?: string; // which exercise card
-  setId?: string;            // exact set row to render timer under
-}
-
 // ── Blog ───────────────────────────────────────────────────────────────────────
 
 export interface BlogPost {

@@ -1,7 +1,7 @@
 {
   "name": "fitpulse-backend",
   "version": "0.0.1",
-  "description": "",
+  "description": "NestJS API and business logic for FitPulse",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

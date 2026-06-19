@@ -61,7 +61,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (enrichedComments.length > 0) {
     const userIds = [...new Set(enrichedComments.map((c) => c.user_id))];
     const { data: userStats } = await supabase
-      .from("user_stats")
+      .from("public_user_profiles")
       .select("user_id, display_name")
       .in("user_id", userIds);
 
