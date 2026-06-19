@@ -29,6 +29,12 @@ async function bootstrap() {
     try {
       await apiRouter.handle(req, res);
     } catch (error) {
+      console.error('[api] request failed', {
+        method: req.method,
+        path: req.originalUrl,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       next(error);
     }
   });
