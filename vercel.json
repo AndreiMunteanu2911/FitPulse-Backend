@@ -2,6 +2,7 @@
   "version": 2,
   "framework": null,
   "buildCommand": "node -e \"console.log('Vercel will bundle the API functions directly.')\"",
+  "outputDirectory": "public",
   "functions": {
     "api/**/*.ts": {
       "includeFiles": "src/**"

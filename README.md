@@ -110,7 +110,8 @@ Unit specs live beside backend modules as `src/**/*.spec.ts`. HTTP integration t
 1. Import this repository as its own Vercel project.
 2. Keep the project root at the repository root and framework preset as `Other`.
    The committed `vercel.json` intentionally skips `nest build`; Vercel bundles
-   the TypeScript entrypoints under `api/` directly.
+   the TypeScript entrypoints under `api/` directly. The minimal `public/`
+   directory satisfies Vercel's static output requirement.
 3. Add all required backend variables from `.env.example` to Production, Preview, and Development as appropriate.
 4. Deploy and note the backend URL, for example `https://fitpulse-backend.vercel.app`.
 5. In the frontend Vercel project, set `API_URL` to that backend URL and deploy the frontend.
