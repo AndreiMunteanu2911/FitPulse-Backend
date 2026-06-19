@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "../../../compat/next-server";
 import { createSupabaseServerClient } from "../../../helper/supabaseServer";
 import { generateFormCoaching } from "../../../lib/form-coaching";
+import { MODELS } from "../../../lib/ai";
 import { formCoachingRequestSchema } from "../../../lib/validations";
 
 export async function POST(req: NextRequest) {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
     const coaching = await generateFormCoaching(parsed.data);
     return NextResponse.json({
       coaching,
-      model: process.env.OPENROUTER_CHAT_MODEL ?? null,
+      model: MODELS.chat,
     });
   } catch (error) {
     return NextResponse.json({

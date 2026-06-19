@@ -55,11 +55,11 @@ The API listens on `http://localhost:3001` by default. Start the frontend on `ht
 | `STRIPE_WEBHOOK_SECRET` | Shop only | Signing secret for the backend webhook endpoint. |
 | `STRIPE_ALLOWED_SHIPPING_COUNTRIES` | Optional | Comma-separated Checkout shipping countries. |
 | `OPENROUTER_API_KEY` | AI only | OpenRouter credential. |
-| `OPENROUTER_CHAT_MODEL` | Optional | Primary chat model. |
-| `OPENROUTER_FALLBACK_MODEL*` | Optional | Ordered fallback models. |
 | `OPENROUTER_EMBEDDING_MODEL` | Optional | Embedding model used by AI context features. |
 
 Do not prefix backend secrets with `NEXT_PUBLIC_`. `FRONTEND_ORIGIN` defaults to `http://localhost:3000` locally; production should always set it explicitly.
+
+Chat is fixed to `openrouter/free`; there is no application-level chat fallback chain.
 
 ## Database Setup
 
@@ -112,7 +112,7 @@ Unit specs live beside backend modules as `src/**/*.spec.ts`. HTTP integration t
 3. Add all required backend variables from `.env.example` to Production, Preview, and Development as appropriate.
 4. Deploy and note the backend URL, for example `https://fitpulse-backend.vercel.app`.
 5. In the frontend Vercel project, set `API_URL` to that backend URL and deploy the frontend.
-6. Set backend `FRONTEND_ORIGIN` and `WEB_APP_URL` to the final frontend URL, then redeploy the backend.
+6. Set backend `FRONTEND_ORIGIN` and `WEB_APP_URL` to `https://fitpulse-am.vercel.app`, then redeploy the backend.
 
 For previews, use non-production Supabase and Stripe resources. If a preview frontend calls the backend directly, add its exact origin to the comma-separated `FRONTEND_ORIGIN`; normal frontend rewrites do not require browser CORS access.
 
