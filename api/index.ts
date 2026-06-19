@@ -45,6 +45,15 @@ async function bootstrap() {
 }
 
 export default async function handler(req: Request, res: Response) {
+  const incomingUrl = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+  const rewrittenPath = incomingUrl.searchParams.get('__path');
+
+  if (rewrittenPath) {
+    incomingUrl.searchParams.delete('__path');
+    const query = incomingUrl.searchParams.toString();
+    req.url = `/api/${rewrittenPath}${query ? `?${query}` : ''}`;
+  }
+
   const readyServer = await bootstrap();
   return readyServer(req, res);
 }

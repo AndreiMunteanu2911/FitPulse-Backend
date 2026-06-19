@@ -79,7 +79,7 @@ The migrations include the required storage configuration for progress photos, s
 - `/api/ai/*`: conversations, coaching, and workout generation.
 - `/api/admin/*`: role-protected administration.
 
-The migrated route modules live under `src/routes`. `src/route-manifest.ts` maps URLs to those modules, and `src/api-router.service.ts` adapts Express requests to the preserved route contract.
+The migrated route modules live under `src/routes`. `src/route-manifest.ts` maps URLs to those modules, and `src/api-router.service.ts` adapts Express requests to the preserved route contract. On Vercel, `vercel.json` rewrites nested `/api/*` paths into the single deployed `api/index.ts` function.
 
 ## Security Model
 

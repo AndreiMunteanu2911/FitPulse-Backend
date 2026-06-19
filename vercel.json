@@ -3,8 +3,14 @@
   "framework": null,
   "buildCommand": "node -e \"console.log('Vercel will bundle the API functions directly.')\"",
   "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api?__path=:path*"
+    }
+  ],
   "functions": {
-    "api/**/*.ts": {
+    "api/index.ts": {
       "includeFiles": "src/**"
     }
   }
