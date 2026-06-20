@@ -105,6 +105,8 @@ export interface FormSessionFeedbackItem {
   category?: FormCueCategory;
   confidence?: number;
   effect?: FormPatternRuleEffect;
+  occurrenceRate?: number;
+  activeDurationMs?: number;
 }
 
 export interface FormLandmarkSample {
