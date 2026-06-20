@@ -43,8 +43,8 @@ function normalizeCoachingPayload(value: unknown): FormCoachingResult {
   const object = value && typeof value === "object" ? value as Record<string, unknown> : {};
   return {
     summary: truncateText(object.summary, 500) || "Review complete. Use the main cues above for your next set.",
-    top_cues: coerceTextArray(object.top_cues, 5, 140),
-    rep_observations: coerceTextArray(object.rep_observations, 5, 160),
+    top_cues: coerceTextArray(object.top_cues, 5, 260),
+    rep_observations: coerceTextArray(object.rep_observations, 5, 240),
     confidence: typeof object.confidence === "number" ? Math.max(0, Math.min(1, object.confidence)) : 0.5,
     needs_human_rule_review: typeof object.needs_human_rule_review === "boolean"
       ? object.needs_human_rule_review
@@ -61,15 +61,19 @@ export async function generateFormCoaching(params: {
     "You are a biomechanics-focused form coach.",
     "Analyze the structured exercise session data and return JSON only.",
     "Return exactly this shape: {\"summary\": string, \"top_cues\": string[], \"rep_observations\": string[], \"confidence\": number, \"needs_human_rule_review\": boolean}.",
-    "Keep summary under 400 characters.",
-    "top_cues should be 2-4 concise, prioritized fixes.",
-    "rep_observations should be 2-4 short observations grounded in the provided rep metrics and worst segment only.",
-    "Do not give generic fitness advice. Every cue must be justified by the metrics or detected issues.",
+    "Write a useful 3-5 sentence summary under 500 characters. State what was done well, what deteriorated, and the single most important priority for the next set.",
+    "Never claim the form was excellent or consistent throughout unless every scored rep supports that claim. A high overall score does not erase specific detected faults.",
+    "top_cues must contain 2-4 detailed, prioritized coaching instructions. Each item must name the body part or movement, describe the observed problem, and give a concrete correction the user can perform on the next rep.",
+    "Use this cue style: 'Elbow position — Your elbows drifted forward near the top of several reps. Keep the upper arms pinned beside your torso and stop the curl before the shoulders roll forward.'",
+    "Do not return category labels or fragments such as 'elbow position', 'torso alignment', or 'concentric control' by themselves.",
+    "rep_observations must contain 2-4 specific observations grounded in the provided rep metrics and worst segment. Mention rep numbers, score changes, phase timing, repeated faults, or range changes when those values are available.",
+    "If the data does not support a precise claim, explicitly say what could not be assessed instead of filling space with generic advice.",
+    "Every cue must be traceable to the metrics or detected issues. Do not add generic fitness advice.",
     "Write for a normal gym user, not an engineer.",
     "Do not mention internal telemetry or implementation terms such as landmarks, keypoints, coordinates, visibility, angles arrays, thresholds, phase logic, rule ids, or model confidence in the user-facing text.",
     "Translate technical signals into plain coaching language about body position and movement, such as elbows, hips, knees, torso, bar path, control, depth, lockout, and tempo.",
     "Do not say that the app measured landmarks or detected thresholds. State the coaching point directly in natural language.",
-    "Be slightly more detailed than a one-line coaching note, but stay compact and practical.",
+    "Prefer concrete language: identify when in the rep the issue occurred, how often it appeared, and what the athlete should feel or change.",
     "Set needs_human_rule_review=true if the rules confidence is low or the signals conflict.",
     "",
     JSON.stringify({
@@ -90,8 +94,8 @@ export async function generateFormCoaching(params: {
     },
   ], {
     temperature: 0.2,
-    maxTokens: 1600,
-    reasoning: { effort: "low" },
+    maxTokens: 2200,
+    reasoning: { effort: "medium" },
     responseFormat: {
       type: "json_schema",
       json_schema: {
@@ -101,9 +105,9 @@ export async function generateFormCoaching(params: {
           type: "object",
           additionalProperties: false,
           properties: {
-            summary: { type: "string" },
-            top_cues: { type: "array", items: { type: "string" } },
-            rep_observations: { type: "array", items: { type: "string" } },
+            summary: { type: "string", minLength: 80, maxLength: 500 },
+            top_cues: { type: "array", minItems: 2, maxItems: 4, items: { type: "string", minLength: 50, maxLength: 260 } },
+            rep_observations: { type: "array", minItems: 2, maxItems: 4, items: { type: "string", minLength: 35, maxLength: 240 } },
             confidence: { type: "number", minimum: 0, maximum: 1 },
             needs_human_rule_review: { type: "boolean" },
           },

@@ -143,8 +143,8 @@ export const formRepMetricSchema = z.object({
 
 export const formCoachingResultSchema = z.object({
   summary: z.string().min(1).max(500),
-  top_cues: z.array(z.string().min(1).max(140)).max(5),
-  rep_observations: z.array(z.string().min(1).max(160)).max(5),
+  top_cues: z.array(z.string().min(1).max(260)).max(5),
+  rep_observations: z.array(z.string().min(1).max(240)).max(5),
   confidence: z.number().min(0).max(1),
   needs_human_rule_review: z.boolean(),
 });
