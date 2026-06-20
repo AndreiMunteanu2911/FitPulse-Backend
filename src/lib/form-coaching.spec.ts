@@ -79,8 +79,8 @@ describe("generateFormCoaching", () => {
       expect.objectContaining({ role: "user", content: expect.stringContaining("Squat") }),
     ]), expect.objectContaining({
       temperature: 0.2,
-      maxTokens: 1600,
-      reasoning: { effort: "low" },
+      maxTokens: 2200,
+      reasoning: { effort: "medium" },
       responseFormat: expect.objectContaining({ type: "json_schema" }),
     }));
   });
@@ -103,7 +103,7 @@ describe("generateFormCoaching", () => {
     expect(result.summary).toHaveLength(500);
     expect(result.top_cues).toHaveLength(3);
     expect(result.top_cues[0]).toBe("Control the rep");
-    expect(result.top_cues[2]).toHaveLength(140);
+    expect(result.top_cues[2]).toHaveLength(200);
     expect(result.rep_observations).toEqual([]);
     expect(result.confidence).toBe(1);
     expect(result.needs_human_rule_review).toBe(false);
