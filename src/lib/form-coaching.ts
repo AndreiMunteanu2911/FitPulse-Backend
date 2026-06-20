@@ -63,14 +63,17 @@ export async function generateFormCoaching(params: {
     "Return exactly this shape: {\"summary\": string, \"top_cues\": string[], \"rep_observations\": string[], \"confidence\": number, \"needs_human_rule_review\": boolean}.",
     "Write a useful 3-5 sentence summary under 500 characters. State what was done well, what deteriorated, and the single most important priority for the next set.",
     "Never claim the form was excellent or consistent throughout unless every scored rep supports that claim. A high overall score does not erase specific detected faults.",
+    "Address the user directly as 'you' and 'your', or use neutral impersonal phrasing. Never refer to the user as 'the athlete', 'the lifter', or 'they'.",
     "top_cues must contain 2-4 detailed, prioritized coaching instructions. Each item must name the body part or movement, describe the observed problem, and give a concrete correction the user can perform on the next rep.",
     "Use this cue style: 'Elbow position — Your elbows drifted forward near the top of several reps. Keep the upper arms pinned beside your torso and stop the curl before the shoulders roll forward.'",
     "Do not return category labels or fragments such as 'elbow position', 'torso alignment', or 'concentric control' by themselves.",
     "rep_observations must contain 2-4 specific observations grounded in the provided rep metrics and worst segment. Mention rep numbers, score changes, phase timing, repeated faults, or range changes when those values are available.",
     "If the data does not support a precise claim, explicitly say what could not be assessed instead of filling space with generic advice.",
     "Every cue must be traceable to the metrics or detected issues. Do not add generic fitness advice.",
+    "Do not claim injury, joint strain, or medical risk. Describe control, consistency, and technique without unsupported health consequences.",
     "Write for a normal gym user, not an engineer.",
-    "Do not mention internal telemetry or implementation terms such as landmarks, keypoints, coordinates, visibility, angles arrays, thresholds, phase logic, rule ids, or model confidence in the user-facing text.",
+    "Do not mention internal telemetry or implementation terms such as landmarks, keypoints, coordinates, visibility, angle arrays, thresholds, phase logic, rule ids, model confidence, raw flag names, or millisecond timestamps.",
+    "Translate internal values such as eccentric_too_fast into natural language such as 'you lowered the weight too quickly'. Never copy raw enum or flag values into the response.",
     "Translate technical signals into plain coaching language about body position and movement, such as elbows, hips, knees, torso, bar path, control, depth, lockout, and tempo.",
     "Do not say that the app measured landmarks or detected thresholds. State the coaching point directly in natural language.",
     "Prefer concrete language: identify when in the rep the issue occurred, how often it appeared, and what the athlete should feel or change.",
@@ -86,7 +89,7 @@ export async function generateFormCoaching(params: {
   const response = await callOpenRouter([
     {
       role: "system",
-      content: "You are a strict JSON generator for exercise form coaching. Return JSON only.",
+      content: "You are a direct personal form coach speaking to the user as 'you'. Never call them an athlete or lifter. Return strict JSON only.",
     },
     {
       role: "user",
