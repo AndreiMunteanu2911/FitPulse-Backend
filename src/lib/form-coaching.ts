@@ -90,7 +90,33 @@ export async function generateFormCoaching(params: {
     },
   ], {
     temperature: 0.2,
-    maxTokens: 900,
+    maxTokens: 1600,
+    reasoning: { effort: "low" },
+    responseFormat: {
+      type: "json_schema",
+      json_schema: {
+        name: "form_coaching",
+        strict: true,
+        schema: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            summary: { type: "string" },
+            top_cues: { type: "array", items: { type: "string" } },
+            rep_observations: { type: "array", items: { type: "string" } },
+            confidence: { type: "number", minimum: 0, maximum: 1 },
+            needs_human_rule_review: { type: "boolean" },
+          },
+          required: [
+            "summary",
+            "top_cues",
+            "rep_observations",
+            "confidence",
+            "needs_human_rule_review",
+          ],
+        },
+      },
+    },
   });
 
   const normalized = response

@@ -77,7 +77,12 @@ describe("generateFormCoaching", () => {
     expect(callOpenRouter).toHaveBeenCalledWith(expect.arrayContaining([
       expect.objectContaining({ role: "system" }),
       expect.objectContaining({ role: "user", content: expect.stringContaining("Squat") }),
-    ]), expect.objectContaining({ temperature: 0.2, maxTokens: 900 }));
+    ]), expect.objectContaining({
+      temperature: 0.2,
+      maxTokens: 1600,
+      reasoning: { effort: "low" },
+      responseFormat: expect.objectContaining({ type: "json_schema" }),
+    }));
   });
 
   it("normalizes malformed but parseable model JSON into the expected shape", async () => {

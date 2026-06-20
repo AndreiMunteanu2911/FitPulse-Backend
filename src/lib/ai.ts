@@ -22,6 +22,8 @@ export interface ChatOptions {
   temperature?: number;
   maxTokens?: number;
   tools?: Record<string, unknown>[];
+  responseFormat?: Record<string, unknown>;
+  reasoning?: { effort: "low" | "medium" | "high" };
 }
 
 async function callOpenRouterInternal(
@@ -31,36 +33,55 @@ async function callOpenRouterInternal(
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY is not set");
 
-  const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000",
-      "X-Title": "FitPulse AI Coach",
-    },
-    body: JSON.stringify({
-      model: options.model,
-      messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.maxTokens ?? 1024,
-      ...(options.tools && { tools: options.tools }),
-    }),
-  });
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}`
+          : "http://localhost:3000",
+        "X-Title": "FitPulse AI Coach",
+      },
+      body: JSON.stringify({
+        model: options.model,
+        messages,
+        temperature: options.temperature ?? 0.7,
+        max_tokens: options.maxTokens ?? 1024,
+        ...(options.tools && { tools: options.tools }),
+        ...(options.responseFormat && { response_format: options.responseFormat }),
+        ...(options.reasoning && { reasoning: options.reasoning }),
+      }),
+    });
 
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    throw new Error(
-      `OpenRouter API error ${res.status}: ${errText || res.statusText}`,
-    );
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      throw new Error(
+        `OpenRouter API error ${res.status}: ${errText || res.statusText}`,
+      );
+    }
+
+    const json = await res.json();
+    const choice = json.choices?.[0];
+    const content = choice?.message?.content;
+    if (typeof content === "string" && content.trim()) return content;
+
+    const providerMessage = choice?.error?.message ?? json.error?.message;
+    const details = [
+      providerMessage,
+      choice?.finish_reason && `finish_reason=${choice.finish_reason}`,
+      json.model && `model=${json.model}`,
+    ].filter(Boolean).join(", ");
+
+    if (attempt === 0) {
+      console.warn(`[OpenRouter] Empty completion; retrying${details ? ` (${details})` : ""}`);
+      continue;
+    }
+    throw new Error(`Empty response from OpenRouter${details ? `: ${details}` : ""}`);
   }
 
-  const json = await res.json();
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) throw new Error("Empty response from OpenRouter");
-  return content;
+  throw new Error("Empty response from OpenRouter");
 }
 
 export async function callOpenRouter(
